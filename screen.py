@@ -1,27 +1,38 @@
 import curses
+import json
 
 
 def center(text):
     return text.center(curses.COLS)
 
 
-class ColorPairKind:
+def color_constant_for_name(name):
+    prop = "COLOR_{}".format(name.upper())
+    return getattr(curses, prop)
+
+
+class Colors:
+
+    # maps names to ints which get passed to curses.color_pair
+    # since Screen#color() takes an int use this as follows
+    # s = Screen(...)
+    # s.color(Colors.forKind('error'))
+    _colors = {}
+
+    @staticmethod
+    def forKind(kind):
+        return curses.color_pair(Colors._colors[kind])
 
     @staticmethod
     def init_color_pairs():
-        curses.init_pair(ColorPairKind.WORD_PAIR,
-                         curses.COLOR_WHITE, curses.COLOR_BLACK)
-        curses.init_pair(ColorPairKind.POS_PAIR,
-                         curses.COLOR_CYAN, curses.COLOR_BLACK)
-        curses.init_pair(ColorPairKind.DEFN_PAIR,
-                         curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-        curses.init_pair(ColorPairKind.ERROR_PAIR,
-                         curses.COLOR_WHITE, curses.COLOR_RED)
-
-    WORD_PAIR = 1
-    POS_PAIR = 2
-    DEFN_PAIR = 3
-    ERROR_PAIR = 4
+        with open('colors.json') as f:
+            clrs = json.load(f)['pairs']
+            num = 1
+            for (k, d) in clrs.items():
+                curses.init_pair(num, color_constant_for_name(
+                    d['foreground']), color_constant_for_name(d['background']))
+                Colors._colors[k] = num
+                num += 1
 
 
 class Screen:
@@ -62,8 +73,8 @@ class Screen:
         elif curses.A_BOLD in self.attributes:
             self.attributes.remove(curses.A_BOLD)
 
-    def color(self, kind):
-        self._color = curses.color_pair(kind)
+    def color(self, c):
+        self._color = c
 
     def refresh(self):
         self.win.refresh()

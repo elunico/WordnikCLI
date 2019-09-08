@@ -4,7 +4,7 @@ import argparse
 import curses
 from bs4 import BeautifulSoup as bs
 from web import *
-from screen import Screen, center, ColorPairKind
+from screen import Screen, center, Colors
 
 scr = None
 
@@ -19,7 +19,7 @@ def curses_begin():
     global scr
     scr = Screen(curses.initscr(), curses.LINES, curses.COLS)
     curses.start_color()
-    ColorPairKind.init_color_pairs()
+    Colors.init_color_pairs()
 
 
 def curses_create_subscrs(right_start):
@@ -38,10 +38,10 @@ def show_word_defintion(defn, pos_screen, defn_screen):
     pos, definition = defn
 
     pos_screen.underline(True)
-    pos_screen.color(ColorPairKind.POS_PAIR)
+    pos_screen.color(Colors.forKind('part-of-speech'))
     pos_screen.addstr(pos)
 
-    defn_screen.color(ColorPairKind.DEFN_PAIR)
+    defn_screen.color(Colors.forKind('definition'))
     defn_screen.addstr_wrapped(definition)
 
     pos_screen.refresh()
@@ -49,11 +49,10 @@ def show_word_defintion(defn, pos_screen, defn_screen):
 
 
 def show_not_found(pos_screen, defn_screen):
-    # pos_screen.underline(True)
-    pos_screen.color(ColorPairKind.ERROR_PAIR)
+    pos_screen.color(Colors.forKind('error'))
     pos_screen.addstr("Error")
 
-    defn_screen.color(ColorPairKind.ERROR_PAIR)
+    defn_screen.color(Colors.forKind('error'))
     defn_screen.addstr("Could not find a defition for the given word!")
 
     pos_screen.refresh()
