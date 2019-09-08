@@ -87,5 +87,7 @@ class Screen:
             if len(string) + c > self.cols:
                 self.win.addstr('\n\r', self.attrs())
                 c = 0
+            elif len(string) + c == self.cols:
+                c = 0
             self.win.addstr(string, self.attrs())
             c += len(string)
