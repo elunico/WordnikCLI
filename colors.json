@@ -20,8 +20,8 @@
       "background": "black"
     },
     "error": {
-      "background": "red",
-      "foreground": "white"
+      "background": "black",
+      "foreground": "red"
     }
   }
 }
