@@ -41,12 +41,12 @@ def show_word_defintion(defn, pos_screen, defn_screen):
     defn_lines = 0
 
     pos_screen.underline(True)
-    if pos != '':
-        pos_screen.color(Colors.forKind('part-of-speech'))
-        pos_lines += pos_screen.addstr(pos)
-    else:
+    if pos == '<unknown>':
         pos_screen.color(Colors.forKind('missing-info'))
-        pos_lines += pos_screen.addstr('<unknown>')
+    else:
+        pos_screen.color(Colors.forKind('part-of-speech'))
+
+    pos_lines += pos_screen.addstr(pos)
 
     defn_screen.color(Colors.forKind('definition'))
     defn_lines += defn_screen.addstr_wrapped(definition)
@@ -98,7 +98,9 @@ def main():
         (pos_screen, defn_screen) = curses_create_subscrs(right_start=rs)
         show_not_found(pos_screen, defn_screen)
     else:
-        [i if i[0] != '' else ('<unknown>', i[1]) for i in dict_entries]
+        dict_entries = [
+            i if i[0] != '' else ('<unknown>', i[1]) for i in dict_entries
+        ]
         rs = len(max(dict_entries, key=lambda x: len(x[0]))[0]) + 2
         (pos_screen, defn_screen) = curses_create_subscrs(right_start=rs)
         lines = 0
