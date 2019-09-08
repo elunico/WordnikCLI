@@ -26,38 +26,26 @@ class Screen:
     def underline(self, state=None):
         if state is None:
             return curses.A_UNDERLINE in self.attributes
-        else:
-            if state:
-                self.attributes.add(curses.A_UNDERLINE)
-            else:
-                try:
-                    self.attributes.remove(curses.A_UNDERLINE)
-                except KeyError:
-                    pass
+        elif state:
+            self.attributes.add(curses.A_UNDERLINE)
+        elif curses.A_UNDERLINE in self.attributes:
+            self.attributes.remove(curses.A_UNDERLINE)
 
     def invert(self, state=None):
         if state is None:
             return curses.A_STANDOUT in self.attributes
-        else:
-            if state:
-                self.attributes.add(curses.A_STANDOUT)
-            else:
-                try:
-                    self.attributes.remove(curses.A_STANDOUT)
-                except KeyError:
-                    pass
+        elif state:
+            self.attributes.add(curses.A_STANDOUT)
+        elif curses.A_STANDOUT in self.attributes:
+            self.attributes.remove(curses.A_STANDOUT)
 
     def bold(self, state=None):
         if state is None:
             return curses.A_BOLD in self.attributes
-        else:
-            if state:
-                self.attributes.add(curses.A_BOLD)
-            else:
-                try:
-                    self.attributes.remove(curses.A_BOLD)
-                except KeyError:
-                    pass
+        elif state:
+            self.attributes.add(curses.A_BOLD)
+        elif curses.A_BOLD in self.attributes:
+            self.attributes.remove(curses.A_BOLD)
 
     def color(self, kind):
         self._color = curses.color_pair(kind)
