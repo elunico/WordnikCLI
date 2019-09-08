@@ -1,5 +1,6 @@
 import curses
 import json
+from math import ceil
 
 
 def center(text):
@@ -85,23 +86,29 @@ class Screen:
     def getch(self, *args, **kwargs):
         return self.win.getch(*args, **kwargs)
 
-    def nl(self):
-        self.win.addstr('\n\r')
+    def nl(self, count=1):
+
+        self.win.addstr('\n\r' * count)
 
     def addstr(self, s, centered=False):
         if centered:
             s = center(s)
         self.win.addstr(s, self.attrs())
+        return ceil(len(s) / self.cols)
 
     def addstr_wrapped(self, s):
         msg = s.split(' ')
+        lines = 1
         c = 0
         for i in msg:
             string = i + ' '
             if len(string) + c > self.cols:
                 self.win.addstr('\n\r', self.attrs())
                 c = 0
+                lines += 1
             elif len(string) + c == self.cols:
                 c = 0
+                lines += 1
             self.win.addstr(string, self.attrs())
             c += len(string)
+        return lines

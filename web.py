@@ -14,10 +14,13 @@ def get_page_source_for_word(word):
 def get_first_defintion(html):
     tree = bs(html, 'html5lib')
     container = tree.find('div', id='define')
-    item = container.find('li')
-    if item is None:
+    definitions = []
+    items = container.find_all('li')
+    if items is None:
         return None
     # TODO: get all li's make subwins for every one? and add all defintions and POSes
-    part = item.find('abbr')
-    part.extract()
-    return part.text.strip(), item.text.strip()
+    for item in items:
+        part = item.find('abbr')
+        part.extract()
+        definitions.append((part.text.strip(), item.text.strip()))
+    return definitions

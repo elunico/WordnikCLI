@@ -22,6 +22,10 @@
     "error": {
       "background": "black",
       "foreground": "red"
+    },
+    "missing-info": {
+      "background": "black",
+      "foreground": "red"
     }
   }
 }
