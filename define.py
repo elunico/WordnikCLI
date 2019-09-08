@@ -17,7 +17,7 @@ def parse_args():
 
 def curses_begin():
     global scr
-    scr = Screen(curses.initscr())
+    scr = Screen(curses.initscr(), curses.LINES, curses.COLS)
     curses.start_color()
     ColorPairKind.init_color_pairs()
 
@@ -25,7 +25,8 @@ def curses_begin():
 def curses_create_subscrs(right_start):
     pos_screen = scr.subwin(2, 4)
     defn_screen = scr.subwin(2, 4 + right_start)
-    return Screen(pos_screen), Screen(defn_screen)
+    return (Screen(pos_screen, curses.LINES - 2, right_start - 1 - 4),
+            Screen(defn_screen, curses.LINES - 2, curses.COLS - right_start - 4))
 
 
 def curses_end():
@@ -41,7 +42,7 @@ def show_word_defintion(defn, pos_screen, defn_screen):
     pos_screen.addstr(pos)
 
     defn_screen.color(ColorPairKind.DEFN_PAIR)
-    defn_screen.addstr(definition)
+    defn_screen.addstr_wrapped(definition)
 
     pos_screen.refresh()
     defn_screen.refresh()

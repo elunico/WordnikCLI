@@ -25,8 +25,10 @@ class ColorPairKind:
 
 
 class Screen:
-    def __init__(self, win):
+    def __init__(self, win, lines, cols):
         self.win = win
+        self.lines = lines
+        self.cols = cols
         self.attributes = set()
         self._color = None
 
@@ -76,3 +78,14 @@ class Screen:
         if centered:
             s = center(s)
         self.win.addstr(s, self.attrs())
+
+    def addstr_wrapped(self, s):
+        msg = s.split(' ')
+        c = 0
+        for i in msg:
+            string = i + ' '
+            if len(string) + c > self.cols:
+                self.win.addstr('\n\r', self.attrs())
+                c = 0
+            self.win.addstr(string, self.attrs())
+            c += len(string)
