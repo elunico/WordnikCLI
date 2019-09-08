@@ -6,9 +6,22 @@ def center(text):
 
 
 class ColorPairKind:
+
+    @staticmethod
+    def init_color_pairs():
+        curses.init_pair(ColorPairKind.WORD_PAIR,
+                         curses.COLOR_WHITE, curses.COLOR_BLACK)
+        curses.init_pair(ColorPairKind.POS_PAIR,
+                         curses.COLOR_CYAN, curses.COLOR_BLACK)
+        curses.init_pair(ColorPairKind.DEFN_PAIR,
+                         curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+        curses.init_pair(ColorPairKind.ERROR_PAIR,
+                         curses.COLOR_WHITE, curses.COLOR_RED)
+
     WORD_PAIR = 1
     POS_PAIR = 2
     DEFN_PAIR = 3
+    ERROR_PAIR = 4
 
 
 class Screen:

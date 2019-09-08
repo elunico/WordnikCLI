@@ -15,18 +15,16 @@ def parse_args():
     return ap.parse_args()
 
 
-def curses_setup(right_start):
+def curses_begin():
     global scr
     scr = Screen(curses.initscr())
     curses.start_color()
+    ColorPairKind.init_color_pairs()
+
+
+def curses_create_subscrs(right_start):
     pos_screen = scr.subwin(2, 4)
     defn_screen = scr.subwin(2, 4 + right_start)
-    curses.init_pair(ColorPairKind.WORD_PAIR,
-                     curses.COLOR_WHITE, curses.COLOR_BLACK)
-    curses.init_pair(ColorPairKind.POS_PAIR,
-                     curses.COLOR_CYAN, curses.COLOR_BLACK)
-    curses.init_pair(ColorPairKind.DEFN_PAIR,
-                     curses.COLOR_MAGENTA, curses.COLOR_BLACK)
     return Screen(pos_screen), Screen(defn_screen)
 
 
@@ -35,30 +33,63 @@ def curses_end():
     curses.endwin()
 
 
+def show_word_defintion(defn, pos_screen, defn_screen):
+    pos, definition = defn
+
+    pos_screen.underline(True)
+    pos_screen.color(ColorPairKind.POS_PAIR)
+    pos_screen.addstr(pos)
+
+    defn_screen.color(ColorPairKind.DEFN_PAIR)
+    defn_screen.addstr(definition)
+
+    pos_screen.refresh()
+    defn_screen.refresh()
+
+
+def show_not_found(pos_screen, defn_screen):
+    # pos_screen.underline(True)
+    pos_screen.color(ColorPairKind.ERROR_PAIR)
+    pos_screen.addstr("Error")
+
+    defn_screen.color(ColorPairKind.ERROR_PAIR)
+    defn_screen.addstr("Could not find a defition for the given word!")
+
+    pos_screen.refresh()
+    defn_screen.refresh()
+
+
+def show_banner():
+    scr.invert(True)
+    scr.addstr('define - Command Line Tool - define a word', centered=True)
+
+
+def show_requested_word(word):
+    scr.invert(False)
+    scr.bold(True)
+    scr.addstr(word)
+
+
 def main():
+
+    curses_begin()
+
     options = parse_args()
     html = get_page_source_for_word(options.word)
     defn = get_first_defintion(html)
 
-    rs = len(defn[0]) + 2
-    (pos_screen, defn_screen) = curses_setup(right_start=rs)
+    show_banner()
+    show_requested_word(options.word)
 
-    scr.invert(True)
-    scr.addstr('define - Command Line Tool - define a word', centered=True)
+    if defn is None:
+        rs = len('Error') + 2
+        (pos_screen, defn_screen) = curses_create_subscrs(right_start=rs)
+        show_not_found(pos_screen, defn_screen)
+    else:
+        rs = len(defn[0]) + 2
+        (pos_screen, defn_screen) = curses_create_subscrs(right_start=rs)
+        show_word_defintion(defn, pos_screen, defn_screen)
 
-    scr.invert(False)
-    scr.bold(True)
-    scr.addstr(options.word)
-
-    pos_screen.underline(True)
-    pos_screen.color(ColorPairKind.POS_PAIR)
-    pos_screen.addstr(defn[0])
-
-    defn_screen.color(ColorPairKind.DEFN_PAIR)
-    defn_screen.addstr(defn[1])
-
-    pos_screen.refresh()
-    defn_screen.refresh()
     curses_end()
 
 
