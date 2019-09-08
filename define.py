@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import requests
 import argparse
 import curses
@@ -27,6 +28,7 @@ def get_first_defintion(html):
     tree = bs(html, 'html5lib')
     container = tree.find('div', id='define')
     item = container.find('li')
+    # TODO: get all li's make subwins for every one? and add all defintions and POSes
     part = item.find('abbr')
     part.extract()
     return part.text.strip(), item.text.strip()
