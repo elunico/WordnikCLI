@@ -85,6 +85,9 @@ class Screen:
     def getch(self, *args, **kwargs):
         return self.win.getch(*args, **kwargs)
 
+    def nl(self):
+        self.win.addstr('\n\r')
+
     def addstr(self, s, centered=False):
         if centered:
             s = center(s)

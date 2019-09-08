@@ -53,7 +53,10 @@ def show_not_found(pos_screen, defn_screen):
     pos_screen.addstr("Error")
 
     defn_screen.color(Colors.forKind('error'))
-    defn_screen.addstr("Could not find a defition for the given word!")
+    defn_screen.addstr_wrapped("Could not find a defition for the given word!")
+    defn_screen.nl()
+    defn_screen.bold(True)
+    defn_screen.addstr_wrapped("Note that Wordnik is case-sensitive")
 
     pos_screen.refresh()
     defn_screen.refresh()
