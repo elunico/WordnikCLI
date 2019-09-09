@@ -18,6 +18,7 @@ def parse_args():
 def curses_begin():
     global scr
     scr = Screen(curses.initscr(), curses.LINES, curses.COLS)
+    curses.noecho()
     curses.start_color()
     Colors.init_color_pairs()
 
