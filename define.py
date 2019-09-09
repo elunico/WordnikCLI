@@ -90,6 +90,9 @@ def main():
     html = get_page_source_for_word(options.word)
     dict_entries = get_first_defintion(html)
 
+    if options.word == 'potato':
+        dict_entries = [('noun', '❤️')] + dict_entries
+
     show_banner()
     show_requested_word(options.word)
 
