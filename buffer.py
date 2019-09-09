@@ -16,30 +16,30 @@ class BufferedScreen:
         self.win = win
         self.lines = lines
         self.cols = cols
+        self.lncount = 0
         self.buffer = ''
         self.start = 0
 
     def moveup(self):
-        self.start -= 1
+        self.start = max(self.start - 1, 0)
 
     def movedown(self):
-        self.start += 1
+        self.start = min(self.lncount - self.lines, self.start + 1)
 
     def addstr(self, s, attrs):
         s.replace('%[', '%%[')
         self.buffer += "%[{}]{}".format(attrs, s)
 
-    def render(self):
+    def transform_buffer(self, s):
         result = ''
         lines = 0
         chars = 0
         attrs = {}
         i = 0
-        # for i in range(len(self.buffer)):
-        while i < len(self.buffer):
-            c = self.buffer[i]
-            if c == '%' and self.buffer[i+1] == '[':
-                esc = parse_escape(self.buffer, i + 2)
+        while i < len(s):
+            c = s[i]
+            if c == '%' and s[i+1] == '[':
+                esc = parse_escape(s, i + 2)
                 # 1 for ] and 2 for %[ plus length of integer
                 i += len(esc) + 1 + 2
                 # map the current index in result to the attrs int retrieved
@@ -55,19 +55,48 @@ class BufferedScreen:
                 result += c
                 chars += 1
                 i += 1
+        return result, attrs
+
+    def render(self):
+        result, attrs = self.transform_buffer(self.buffer)
+        self.lncount = result.count('\n') + 1
         self.win.clear()
-        items = result.split('\n')
         try:
+            # FIXME: when starting not at 0 find the nearest attr index < start_idx to apply
+            # necessary attrs
             ats = 0
-            # FIXME: all of the attributes do not necessarily belong to the same line
-            chcnt = sum(map(lambda s: len(s), items[:self.start]))
-            for i in range(self.start, self.lines-1 + self.start):
-                for idx in range(chcnt, chcnt + len(items[i])):
-                    if idx in attrs:
-                        ats = attrs[idx]
-                self.win.addstr(items[i] + '\n', ats)
+            start_idx = self.get_start_idx(result, self.start)
+            lines = 0
+            for i in range(start_idx, len(result)):
+                if i in attrs:
+                    ats = attrs[i]
+                if result[i] == '\n':
+                    lines += 1
+                if lines == self.lines:
+                    break
+                self.win.addstr(result[i], ats)
         except IndexError:
             pass
+
+    def get_start_idx(self, s, line):
+        try:
+            idx = 0
+            for i in range(line):
+                idx = s.index('\n', idx) + 1  # pass the newline
+            return idx
+        except ValueError:
+            return 0
+
+    def listen(self):
+        while True:
+            c = s.getch()
+            if c == ord("u"):
+                b.moveup()
+            if c == ord("d"):
+                b.movedown()
+            if c == ord('q') or c == 10:
+                break
+            self.render()
 
 
 s = curses.initscr()
@@ -79,14 +108,6 @@ for i in range(0, 500):
              2 == 0 else curses.A_BOLD)
 
 b.render()
+b.listen()
 
-while True:
-    c = s.getch()
-    if c == ord("u"):
-        b.moveup()
-    if c == ord("d"):
-        b.movedown()
-    if c == ord('q') or c == 10:
-        break
-    b.render()
 curses.endwin()
