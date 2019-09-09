@@ -87,8 +87,11 @@ def main():
     curses_begin()
 
     options = parse_args()
-    html = get_page_source_for_word(options.word)
-    dict_entries = get_first_defintion(html)
+    try:
+        html = get_page_source_for_word(options.word)
+        dict_entries = get_first_defintion(html)
+    except ConnectionError:
+        dict_entries = []
 
     if options.word == 'potato':
         dict_entries = [('noun', '❤️')] + dict_entries
