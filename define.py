@@ -18,6 +18,7 @@ def parse_args():
 def curses_begin():
     global scr
     scr = Screen(curses.initscr(), curses.LINES, curses.COLS)
+    curses.noecho()
     curses.start_color()
     Colors.init_color_pairs()
 
@@ -29,8 +30,20 @@ def curses_create_subscrs(right_start):
             Screen(defn_screen, curses.LINES - 2, curses.COLS - right_start - 4))
 
 
-def curses_end():
-    scr.getch()
+def curses_end(pos_screen, defn_screen):
+    while True:
+        c = scr.getch()
+        if c == ord("u"):
+            pos_screen.moveup()
+            defn_screen.moveup()
+        if c == ord("d"):
+            pos_screen.movedown()
+            defn_screen.movedown()
+        if c == ord('q') or c == 10:
+            break
+        # raise ValueError(pos_screen.buffer.start)
+        pos_screen.refresh()
+        defn_screen.refresh()
     curses.endwin()
 
 
@@ -98,6 +111,7 @@ def main():
 
     show_banner()
     show_requested_word(options.word)
+    scr.refresh()
 
     if dict_entries == []:
         rs = len('Error') + 2
@@ -112,16 +126,16 @@ def main():
         lines = 0
         for entry in dict_entries:
             # TODO: make it scroll
-            try:
-                entry_lines = show_word_defintion(
-                    entry, pos_screen, defn_screen)
-                pos_screen.nl(entry_lines + 1)  # move down for next POS
-                defn_screen.nl(2)  # move down a line for next definition
-            except curses.error:
-                break
+            # try:
+            entry_lines = show_word_defintion(
+                entry, pos_screen, defn_screen)
+            pos_screen.nl(entry_lines + 1)  # move down for next POS
+            defn_screen.nl(2)  # move down a line for next definition
+            # except curses.error:
+            # break
             lines += entry_lines
 
-    curses_end()
+    curses_end(pos_screen, defn_screen)
 
 
 if __name__ == "__main__":
