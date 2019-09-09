@@ -21,3 +21,11 @@ Another example:
 ![Alt Text](/images/onomatopoeia_out.png "terminal window showing fish shell prompt and define.py onomatopoeia")
 
 ![Alt Text](images/onomatopoeia_in.png "terminal window showing the result of define.py onomatopoeia")
+
+Another example again:
+
+`./define.py goal`
+
+![Alt Text](/images/goal_out.png "terminal window showing fish shell prompt and define.py goal")
+
+![Alt Text](images/goal_in.png "terminal window showing the result of define.py goal")
