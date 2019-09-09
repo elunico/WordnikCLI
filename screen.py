@@ -1,6 +1,7 @@
 import curses
 import json
 from math import ceil
+from buffer import BufferedScreen
 
 
 def center(text):
@@ -39,6 +40,7 @@ class Colors:
 class Screen:
     def __init__(self, win, lines, cols):
         self.win = win
+        self.buffer = BufferedScreen(win, lines, cols)
         self.lines = lines
         self.cols = cols
         self.attributes = set()
@@ -78,7 +80,7 @@ class Screen:
         self._color = c
 
     def refresh(self):
-        self.win.refresh()
+        self.buffer.render()
 
     def subwin(self, *args, **kwargs):
         return self.win.subwin(*args, **kwargs)
@@ -86,15 +88,24 @@ class Screen:
     def getch(self, *args, **kwargs):
         return self.win.getch(*args, **kwargs)
 
+    def listen(self):
+        self.buffer.listen()
+
     def nl(self, count=1):
 
-        self.win.addstr('\n\r' * count)
+        self.buffer.addstr('\n\r' * count)
 
     def addstr(self, s, centered=False):
         if centered:
             s = center(s)
-        self.win.addstr(s, self.attrs())
+        self.buffer.addstr(s, self.attrs())
         return ceil(len(s) / self.cols)
+
+    def moveup(self):
+        self.buffer.moveup()
+
+    def movedown(self):
+        self.buffer.movedown()
 
     def addstr_wrapped(self, s):
         msg = s.split(' ')
@@ -103,12 +114,12 @@ class Screen:
         for i in msg:
             string = i + ' '
             if len(string) + c > self.cols:
-                self.win.addstr('\n\r', self.attrs())
+                self.buffer.addstr('\n\r', self.attrs())
                 c = 0
                 lines += 1
             elif len(string) + c == self.cols:
                 c = 0
                 lines += 1
-            self.win.addstr(string, self.attrs())
+            self.buffer.addstr(string, self.attrs())
             c += len(string)
         return lines

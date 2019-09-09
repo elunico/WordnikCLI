@@ -21,12 +21,14 @@ class BufferedScreen:
         self.start = 0
 
     def moveup(self):
+        # self.start -= 1
         self.start = max(self.start - 1, 0)
 
     def movedown(self):
+        # self.start += 1
         self.start = min(self.lncount - self.lines, self.start + 1)
 
-    def addstr(self, s, attrs):
+    def addstr(self, s, attrs=0):
         s.replace('%[', '%%[')
         self.buffer += "%[{}]{}".format(attrs, s)
 
@@ -48,10 +50,10 @@ class BufferedScreen:
                 if c == '\n':
                     chars = 0
                     lines += 1
-                elif chars == self.cols-1:
+                elif chars == self.cols:
                     lines += 1
                     chars = 0
-                    result += '\n'
+                    result += '\x07'
                 result += c
                 chars += 1
                 i += 1
@@ -69,19 +71,24 @@ class BufferedScreen:
         self.lncount = result.count('\n') + 1
         self.win.clear()
         try:
-            # FIXME when starting not at 0 find the nearest attr index < start_idx to apply
-            # necessary attrs
             start_idx = self.get_start_idx(result, self.start)
             ats = self.most_recent_attr(start_idx, attrs)
             lines = 0
             for i in range(start_idx, len(result)):
                 if i in attrs:
                     ats = attrs[i]
+                # inserted in the string to represent wrapping at the end of a line
+                # different from \n because no \n is inserted by a new line is still
+                # started and coutns towards the line count
+                if result[i] == '\x07':
+                    lines += 1
+                    continue
                 if result[i] == '\n':
                     lines += 1
                 if lines == self.lines:
                     break
                 self.win.addstr(result[i], ats)
+            self.win.refresh()
         except IndexError:
             pass
 
@@ -89,14 +96,19 @@ class BufferedScreen:
         try:
             idx = 0
             for i in range(line):
-                idx = s.index('\n', idx) + 1  # pass the newline
+                # \n represents explicit new lines and
+                # \x07 represents wrapping at self.cols
+                # so when we seek a new line we have to see the nearest (min)
+                # index of the two
+                idx = min(better_index_of(s, '\n', idx), better_index_of(
+                    s, '\x07', idx)) + 1  # pass the newline
             return idx
         except ValueError:
             return 0
 
     def listen(self):
         while True:
-            c = s.getch()
+            c = self.win.getch()
             if c == ord("u"):
                 b.moveup()
             if c == ord("d"):
@@ -106,15 +118,23 @@ class BufferedScreen:
             self.render()
 
 
-s = curses.initscr()
-curses.noecho()
-b = BufferedScreen(s, curses.LINES, curses.COLS)
+def better_index_of(string, substring, start=0):
+    try:
+        return string.index(substring, start)
+    except ValueError:
+        return 2 ** 64
 
-for i in range(0, 500):
-    b.addstr('line {}'.format(i), curses.A_STANDOUT if i %
-             2 == 0 else curses.A_BOLD)
 
-b.render()
-b.listen()
+if __name__ == '__main__':
+    s = curses.initscr()
+    curses.noecho()
+    b = BufferedScreen(s, curses.LINES, curses.COLS)
 
-curses.endwin()
+    for i in range(0, 500):
+        b.addstr('line {}'.format(i), curses.A_STANDOUT if i %
+                 2 == 0 else curses.A_BOLD)
+
+    b.render()
+    b.listen()
+
+    curses.endwin()
