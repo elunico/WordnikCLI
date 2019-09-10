@@ -35,15 +35,26 @@ def curses_create_subscrs(right_start):
 def curses_end(pos_screen, defn_screen):
     while True:
         c = scr.getch()
-        if c == ord("u"):
+        if c == 262:
+            pos_screen.top()
+            defn_screen.top()
+        if c == 360:
+            pos_screen.bottom()
+            defn_screen.bottom()
+        if c == 338:
+            pos_screen.movedown(pos_screen.lines)
+            defn_screen.movedown(defn_screen.lines)
+        if c == 339:
+            pos_screen.moveup(pos_screen.lines)
+            defn_screen.moveup(defn_screen.lines)
+        if c == 259:
             pos_screen.moveup()
             defn_screen.moveup()
-        if c == ord("d"):
+        if c == 258:
             pos_screen.movedown()
             defn_screen.movedown()
         if c == ord('q') or c == 10:
             break
-        # raise ValueError(pos_screen.buffer.start)
         pos_screen.refresh()
         defn_screen.refresh()
     curses.endwin()

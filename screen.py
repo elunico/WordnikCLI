@@ -101,11 +101,17 @@ class Screen:
         self.buffer.addstr(s, self.attrs())
         return ceil(len(s) / self.cols)
 
-    def moveup(self):
-        self.buffer.moveup()
+    def moveup(self, lines=1):
+        self.buffer.moveup(lines)
 
-    def movedown(self):
-        self.buffer.movedown()
+    def movedown(self, lines=1):
+        self.buffer.movedown(lines)
+
+    def top(self):
+        self.buffer.top()
+
+    def bottom(self):
+        self.buffer.bottom()
 
     def addstr_wrapped(self, s):
         msg = s.split(' ')

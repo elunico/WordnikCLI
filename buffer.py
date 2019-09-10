@@ -20,13 +20,19 @@ class BufferedScreen:
         self.buffer = ''
         self.start = 0
 
-    def moveup(self):
+    def moveup(self, lines=1):
         # self.start -= 1
-        self.start = max(self.start - 1, 0)
+        self.start = max(self.start - lines, 0)
 
-    def movedown(self):
+    def movedown(self, lines=1):
         # self.start += 1
-        self.start = min(self.lncount - self.lines, self.start + 1)
+        self.start = min(self.lncount - self.lines, self.start + lines)
+
+    def top(self):
+        self.start = 0
+
+    def bottom(self):
+        self.start = self.lncount - self.lines
 
     def addstr(self, s, attrs=0):
         s.replace('%[', '%%[')
