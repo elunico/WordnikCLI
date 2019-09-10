@@ -11,7 +11,7 @@ def get_page_source_for_word(word):
     return r.content
 
 
-def get_first_defintion(html):
+def get_all_definitions(html):
     tree = bs(html, 'html5lib')
     container = tree.find('div', id='define')
     definitions = []

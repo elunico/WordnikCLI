@@ -93,7 +93,7 @@ class Screen:
 
     def nl(self, count=1):
 
-        self.buffer.addstr('\n\r' * count)
+        self.buffer.addstr('\n' * count)
 
     def addstr(self, s, centered=False):
         if centered:
@@ -114,7 +114,7 @@ class Screen:
         for i in msg:
             string = i + ' '
             if len(string) + c > self.cols:
-                self.buffer.addstr('\n\r', self.attrs())
+                self.buffer.addstr('\n', self.attrs())
                 c = 0
                 lines += 1
             elif len(string) + c == self.cols:

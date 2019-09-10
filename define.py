@@ -10,7 +10,8 @@ scr = None
 
 
 def parse_args():
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(
+        description="A program for defining words in the terminal. Definitions provided by https://www.wordnik.com/")
     ap.add_argument('word', help='The word you want to define')
     return ap.parse_args()
 
@@ -19,6 +20,7 @@ def curses_begin():
     global scr
     scr = Screen(curses.initscr(), curses.LINES, curses.COLS)
     curses.noecho()
+    scr.win.keypad(1)
     curses.start_color()
     Colors.init_color_pairs()
 
@@ -96,13 +98,11 @@ def show_requested_word(word):
 
 
 def main():
-
-    curses_begin()
-
     options = parse_args()
+    curses_begin()
     try:
         html = get_page_source_for_word(options.word)
-        dict_entries = get_first_defintion(html)
+        dict_entries = get_all_definitions(html)
     except ConnectionError:
         dict_entries = []
 
