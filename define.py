@@ -33,9 +33,28 @@ def curses_create_subscrs(right_start):
             Screen(defn_screen, curses.LINES - 2, curses.COLS - right_start - 4))
 
 
+prev = None
+allow_separate = False
+
+
 def curses_end(pos_screen, defn_screen):
+    global allow_separate
+    global prev
     while True:
         c = scr.getch()
+        if c == ord('r'):
+            prev = c
+        if c == ord('x') and prev == ord('r'):
+            allow_separate = True
+        if allow_separate:
+            if c == ord('w'):
+                pos_screen.moveup()
+            if c == ord('s'):
+                pos_screen.movedown()
+            if c == ord('e'):
+                defn_screen.moveup()
+            if c == ord('d'):
+                defn_screen.movedown()
         if c == 262:
             pos_screen.top()
             defn_screen.top()
