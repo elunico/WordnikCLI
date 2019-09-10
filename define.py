@@ -5,6 +5,7 @@ import curses
 from bs4 import BeautifulSoup as bs
 from web import *
 from screen import Screen, center, Colors
+from debug import dump_locals, dump_obj
 
 scr = None
 
@@ -50,10 +51,10 @@ def curses_end(pos_screen, defn_screen):
         if c == 259:
             pos_screen.moveup()
             defn_screen.moveup()
-        if c == 258:
+        if c == 258 or c == 10:
             pos_screen.movedown()
             defn_screen.movedown()
-        if c == ord('q') or c == 10:
+        if c == ord('q') or c == 27:
             break
         pos_screen.refresh()
         defn_screen.refresh()
@@ -109,6 +110,7 @@ def show_requested_word(word):
 
 
 def main():
+    global pos_screen, defn_screen
     options = parse_args()
     curses_begin()
     try:
@@ -150,4 +152,10 @@ def main():
 
 
 if __name__ == "__main__":
+    # try:
     main()
+    # except:
+    # curses.endwin()
+    # dump_locals(locals())
+    # dump_obj('pos_screen', pos_screen)
+    # dump_obj('defn_screen', defn_screen)
