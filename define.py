@@ -10,11 +10,51 @@ from debug import dump_locals, dump_obj
 scr = None
 
 
+def show_keybindings():
+    curses_begin()
+    show_banner()
+    show_requested_word('Keybindings')
+    scr.refresh()
+    dict_entries = [
+        ('<escape>', "exit the program"),
+        ('q', 'exit the program'),
+        ('<enter>', 'Move down one line'),
+        ('<down arrow>', 'Move down one line'),
+        ('<up arrow>', "Move up one line"),
+        ('r -> x', "(Press r then press x) Enter debug mode"),
+        ('w', 'Debug mode only: move the left column up one line'),
+        ('e', 'Debug mode only: move the right column up one line'),
+        ('s', 'Debug mode only: move the left column down one line'),
+        ('d', 'Debug mode only: move the right column down one line'),
+    ]
+    rs = len(max(dict_entries, key=lambda x: len(x[0]))[0]) + 2
+    (pos_screen, defn_screen) = curses_create_subscrs(right_start=rs)
+    lines = 0
+    for entry in dict_entries:
+        entry_lines = show_word_defintion(
+            entry, pos_screen, defn_screen)
+        pos_screen.nl(entry_lines + 1)
+        defn_screen.nl(2)
+        lines += entry_lines
+
+    curses_end(pos_screen, defn_screen)
+
+
 def parse_args():
     ap = argparse.ArgumentParser(
-        description="A program for defining words in the terminal. Definitions provided by https://www.wordnik.com/")
-    ap.add_argument('word', help='The word you want to define')
-    return ap.parse_args()
+        usage='usage: define.py (-h | -k | word [word ...])',
+        description="A program for defining words in the terminal. "
+        "Definitions provided by https://www.wordnik.com/"
+    )
+    ap.add_argument('word', nargs='*', help='The word you want to define')
+    ap.add_argument('-k', '--keybindings', action="store_true",
+                    help='Show the keybindings used by the program and exit')
+    options = ap.parse_args()
+    if not options.keybindings and not options.word:
+        ap.error("You must specify at least one word "
+                 "to define or the -k flag or the -h flag")
+
+    return options
 
 
 def curses_begin():
@@ -131,18 +171,27 @@ def show_requested_word(word):
 def main():
     global pos_screen, defn_screen
     options = parse_args()
+    if options.keybindings:
+        try:
+            show_keybindings()
+            return
+        except:
+            curses.endwin()
+            raise
+
     curses_begin()
+    word = ' '.join(options.word)
     try:
-        html = get_page_source_for_word(options.word)
+        html = get_page_source_for_word(word)
         dict_entries = get_all_definitions(html)
     except ConnectionError:
         dict_entries = []
 
-    if options.word == 'potato':
+    if word == 'potato':
         dict_entries = [('noun', '❤️')] + dict_entries
 
     show_banner()
-    show_requested_word(options.word)
+    show_requested_word(word)
     scr.refresh()
 
     if dict_entries == []:
