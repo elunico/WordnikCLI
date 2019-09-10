@@ -22,11 +22,15 @@ class BufferedScreen:
 
     def moveup(self, lines=1):
         # self.start -= 1
+        old = self.start
         self.start = max(self.start - lines, 0)
+        return old - self.start == lines
 
     def movedown(self, lines=1):
         # self.start += 1
+        old = self.start
         self.start = min(self.lncount - self.lines, self.start + lines)
+        return self.start - old == lines
 
     def top(self):
         self.start = 0
@@ -51,6 +55,8 @@ class BufferedScreen:
                 # 1 for ] and 2 for %[ plus length of integer
                 i += len(esc) + 1 + 2
                 # map the current index in result to the attrs int retrieved
+                # current index is len(result) because we are building result
+                # so the next char belongs in `esc` attrs which will happen
                 attrs[len(result)] = int(esc)
             else:
                 if c == '\n':
@@ -80,20 +86,22 @@ class BufferedScreen:
             start_idx = self.get_start_idx(result, self.start)
             ats = self.most_recent_attr(start_idx, attrs)
             lines = 0
+            cols = 0
             for i in range(start_idx, len(result)):
                 if i in attrs:
                     ats = attrs[i]
                 # inserted in the string to represent wrapping at the end of a line
                 # different from \n because no \n is inserted by a new line is still
                 # started and coutns towards the line count
-                if result[i] == '\x07':
+                if result[i] == '\x07' or result[i] == '\n':
                     lines += 1
-                    continue
-                if result[i] == '\n':
-                    lines += 1
+                    cols = 0
                 if lines == self.lines:
                     break
+                if result[i] == '\x07':
+                    continue
                 self.win.addstr(result[i], ats)
+                cols += 1
             self.win.refresh()
         except IndexError:
             pass
