@@ -5,13 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Current File",
+      "name": "Python: define.py",
       "type": "python",
       "request": "launch",
-      "program": "${file}",
+      "program": "/home/thomas/Dropbox/Ubuntu/CodeProjects/PersonalProjects/define/define.py",
       "console": "externalTerminal",
       "args": [
-        "want"
+        "delete"
       ]
     }
   ]
