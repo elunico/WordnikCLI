@@ -1,5 +1,6 @@
 import curses
 import json
+import os.path
 from math import ceil
 from buffer import BufferedScreen
 
@@ -27,7 +28,7 @@ class Colors:
 
     @staticmethod
     def init_color_pairs():
-        with open('colors.json') as f:
+        with open(os.path.join(*tuple(os.path.split(__file__))[:-1], 'colors.json')) as f:
             clrs = json.load(f)['pairs']
             num = 1
             for (k, d) in clrs.items():
