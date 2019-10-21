@@ -42,13 +42,19 @@ def show_keybindings():
 
 def parse_args():
     ap = argparse.ArgumentParser(
-        usage='usage: define.py (-h | -k | word [word ...])',
+        usage='usage: define.py (-h | -k | word [word ...]) [-t]',
         description="A program for defining words in the terminal. "
         "Definitions provided by https://www.wordnik.com/"
     )
     ap.add_argument('word', nargs='*', help='The word you want to define')
     ap.add_argument('-k', '--keybindings', action="store_true",
                     help='Show the keybindings used by the program and exit')
+    ap.add_argument('-t', '--traceback', action="store_true", required=False,
+                    help=('Instead of using the default message on '
+                          'network failure (which is to display "No '
+                          'defintions found") instead raise an '
+                          'exception with the reason for the network'
+                          ' failure'))
     options = ap.parse_args()
     if not options.keybindings and not options.word:
         ap.error("You must specify at least one word "
@@ -77,7 +83,7 @@ prev = None
 allow_separate = False
 
 
-def curses_end(pos_screen, defn_screen):
+def curses_mainloop(pos_screen, defn_screen):
     global allow_separate
     global prev
     while True:
@@ -117,7 +123,6 @@ def curses_end(pos_screen, defn_screen):
             break
         pos_screen.refresh()
         defn_screen.refresh()
-    curses.endwin()
 
 
 def show_word_defintion(defn, pos_screen, defn_screen):
@@ -185,6 +190,9 @@ def main():
         html = get_page_source_for_word(word)
         dict_entries = get_all_definitions(html)
     except ConnectionError:
+        if options.traceback:
+            curses.endwin()
+            raise
         dict_entries = []
 
     if word == 'potato':
@@ -206,7 +214,6 @@ def main():
         (pos_screen, defn_screen) = curses_create_subscrs(right_start=rs)
         lines = 0
         for entry in dict_entries:
-            # TODO: make it scroll
             # try:
             entry_lines = show_word_defintion(
                 entry, pos_screen, defn_screen)
@@ -216,14 +223,9 @@ def main():
             # break
             lines += entry_lines
 
-    curses_end(pos_screen, defn_screen)
+    curses_mainloop(pos_screen, defn_screen)
+    curses.endwin()
 
 
 if __name__ == "__main__":
-    # try:
     main()
-    # except:
-    # curses.endwin()
-    # dump_locals(locals())
-    # dump_obj('pos_screen', pos_screen)
-    # dump_obj('defn_screen', defn_screen)

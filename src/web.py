@@ -16,9 +16,6 @@ def get_all_definitions(html):
     container = tree.find('div', id='define')
     definitions = []
     items = container.find_all('li')
-    if items is None:
-        return None
-    # TODO: get all li's make subwins for every one? and add all defintions and POSes
     for item in items:
         part = item.find('abbr')
         part.extract()
