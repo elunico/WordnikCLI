@@ -11,6 +11,14 @@ def parse_escape(s, idx):
     return r
 
 
+def most_recent_attr(idx, attrs):
+    if idx == 0:
+        return attrs[idx] if idx in attrs else 0
+    while idx not in attrs and idx > 0:
+        idx -= 1
+    return attrs[idx] if idx in attrs else 0
+
+
 class BufferedScreen:
     def __init__(self, win, lines, cols):
         self.win = win
@@ -71,20 +79,13 @@ class BufferedScreen:
                 i += 1
         return result, attrs
 
-    def most_recent_attr(self, idx, attrs):
-        if idx == 0:
-            return attrs[idx] if idx in attrs else 0
-        while idx not in attrs and idx > 0:
-            idx -= 1
-        return attrs[idx] if idx in attrs else 0
-
     def render(self):
         result, attrs = self.transform_buffer(self.buffer)
         self.lncount = result.count('\n') + 1
         self.win.clear()
         try:
             start_idx = self.get_start_idx(result, self.start)
-            ats = self.most_recent_attr(start_idx, attrs)
+            ats = most_recent_attr(start_idx, attrs)
             lines = 0
             cols = 0
             for i in range(start_idx, len(result)):
