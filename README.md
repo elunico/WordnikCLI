@@ -1,4 +1,9 @@
 # WordnikCLI
+
+### This program is deprecated! I rewrote it to fix some of the issues with it and to make the code clearer and better organized. Please find the new version [here](https://github.com/elunico/WordnikCLI2)
+
+**===================================================================**
+
 A program for getting simple definitions for English words on the command line
 
 This program uses BeautifulSoup, the Wordnik API (currently does scraping, but API use will be used in the future), requests (for python) to give
